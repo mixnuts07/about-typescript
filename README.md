@@ -1,1 +1,3 @@
-# Survival-TypeScript
+https://typescriptbook.jp/
+
+memo(In Transition ..)
