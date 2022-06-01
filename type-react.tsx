@@ -296,10 +296,112 @@ type Props = {
 };
 
 
-     
+//// Hooks も必要な時に明示的に型推論
+
+//useState .. アサーションを使う        
+const [val, setVal] = useState(false); // これで問題ない
+const [val, setVal] = useState<boolean | null>(null); // Nullable にしたい場合はアサーションを使う
+
+
+// useEffect は戻り値に気をつける！！  関数 or undefined　以外は返さないようにする！！ (ts関係なく)
+// NG
+useEffect(
+  () =>
+    setTimeout(() => {
+      /* ... */
+    }, 1000),
+  []
+);
+
+// OK
+useEffect(() => {
+  setTimeout(() => {
+     /* ... */
+  }, 1000);
+}, []);
+
+useEffect( ()=>{setTimeout(()=>{},1000)} , [] ) // useEffect(関数、配列)
+
+
+// useref .. 初期値にnullが入る場合があるからアサーション！！
+
+const App: React.FC = () => {
+  // 明示的な型定義が必要
+  const ElementRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // 型ガードが必要
+    if (!ElementRef.current) throw Error("ElementRef is not assigned");
+    console.log(ElementRef.current.getBoundingClientRect());
+  }, []);
+
+  return <div ref={ElementRef}>app</div>;
+};
           
-          
-          
-          
-          
-          
+// useReducer.  state と action に型定義。　
+// action を ACTIONTYPE.  state を typeofで流用！
+const initialState = { count: 0 };
+
+type ACTIONTYPE =
+  | { type: "increment"; payload: number }
+  | { type: "decrement"; payload: number };
+
+const reducer = (state: typeof initialState, action: ACTIONTYPE) => {
+  switch (action.type) {
+    case "increment":
+      return { count: state.count + action.payload };
+    case "decrement":
+      return { count: state.count - action.payload };
+    default:
+      throw new Error();
+  }
+};
+
+const App: React.FC = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  return (
+    <div>
+      Count: {state.count}
+      <button onClick={() => dispatch({ type: "decrement", payload: 1 })}>
+        Count Down
+      </button>
+      <button onClick={() => dispatch({ type: "increment", payload: 1 })}>
+        Count Up
+      </button>
+    </div>
+  );
+};
+        
+      
+// useContext
+// Provider の value にセットする値の型定義!!
+// createContext で初期値を null にする場合はアサーションが必要。
+interface AppContextInterface {
+  name: string;
+  age: number;
+}
+const sampleAppContext: AppContextInterface = {
+  name: "Yamada Taro",
+  age: 20,
+};
+
+const AppContext = createContext<AppContextInterface | null>(null);
+
+const ChildComponent: React.FC = () => {
+  // useContext(AppContext)! の ! は not-null のアサーション
+  const appContext = useContext(AppContext)!;
+
+  return (
+    <p>
+      {appContext.name}は{appContext.age}歳です。
+    </p>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <AppContext.Provider value={sampleAppContext}>
+      <ChildComponent />
+    </AppContext.Provider>
+  );
+};
