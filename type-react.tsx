@@ -231,14 +231,75 @@ const canvas2 = <HTMLElement>document.getElementById("canvas")          // : HTM
 
 
 
-  
-  
-  
-  
-  
-  
-  
-  
+// React とTypeScript
+
+// Fucntion   React.FC<>   OR  React.VFC<>
+type Props = {
+  name : string;
+};
+const Sample : React.FC<Props> = ({name}) => {
+  return <div>Hello {name}!</div>;
+};
 
 
+// Optional な Props  →  ?を使う
+type Props = {
+  x? : number;  //x : number | undefined
+  y? : number;  //y : number | undefined
+};
+// Optionalな値はundefinedの可能性があるから初期値設定！
+const CalcSum : React.FC<Props> = ({x=0, y=0}) => {
+  const sum = x + y;
+  return <div>{sum}</div>;
+const App : React.FC = () => {
+  return <CalcSum x={2} />;
+};
+          
+          
+// EvventCallBack の型定義
+type InputProps = {
+  value : string;
+  onChange : (e : React.ChangeEvent<HTMLElement>) => void;
+};
 
+const Input : React.FC<InputProps> = ({value, onChange}) => {
+  return (
+    <div>
+      <input type="text" value={value} onChange={onChange} />
+    </div>
+  );
+};
+
+
+const App : React.FC = () => {
+  const [inputValue, setInputValue] = useState("");
+  const onChange = (e : React.ChangeEvent<HTMLElement>) => {
+    setInputValue(e.target.value);
+  };
+  return (
+    <div>
+      <div>{inputValue}</div>
+      <Input value={inputValue} onChange={onChange} />
+    </div>
+  );
+};
+        
+// Ex..その他EventCallBack
+type Props = {
+  onClick: (event: React.MouseEvent<HTMLInputElement>) => void;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onkeypress: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onFocus: (event: React.FocusEvent<HTMLInputElement>) => void;
+  onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+  onClickDiv: (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
+};
+
+
+     
+          
+          
+          
+          
+          
+          
