@@ -3,3 +3,5 @@ function increment(num: number) {
 }
 
 console.log(increment(1));
+
+// tsc increment.ts
